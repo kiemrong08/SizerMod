@@ -7343,4 +7343,42 @@ void PositionSizeToArray(double ps)
     }
     else ArrayPositionSize[0] = ps;
 }
+
+void MoveAllSL()
+{
+    if ((!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) || (!TerminalInfoInteger(TERMINAL_CONNECTED)) || (!MQLInfoInteger(MQL_TRADE_ALLOWED))) return;
+
+    for (int i = 0; i < OrdersTotal(); i++)
+    {
+        if (!OrderSelect(i, SELECT_BY_POS)) Print("OrderSelect failed " + ErrorDescription(GetLastError()) + ".");
+        else if (SymbolInfoInteger(OrderSymbol(), SYMBOL_TRADE_MODE) == SYMBOL_TRADE_MODE_DISABLED) continue;
+        else
+        {
+            if ((OrderSymbol() != Symbol())) continue;
+            if (OrderType() == OP_BUY)
+            {
+                double SL = sets.StopLossLevel;
+                if (SL < Bid() )
+                {
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), SL, OrderTakeProfit(), OrderExpiration()))
+                        Print("OrderModify Buy TSL failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("Trailing stop was applied to position - " + Symbol() + " BUY-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(SL, _Digits) + ".");
+                }
+            }
+            else if (OrderType() == OP_SELL)
+            {
+                double SL = sets.StopLossLevel;
+                if (SL > Ask())
+                {
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), SL, OrderTakeProfit(), OrderExpiration()))
+                        Print("OrderModify Sell TSL failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("Trailing stop was applied to position - " + Symbol() + " SELL-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(SL, _Digits) + ".");
+                }
+            }
+        }
+    }
+}
+
 //+------------------------------------------------------------------+
