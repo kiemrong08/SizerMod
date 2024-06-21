@@ -7363,7 +7363,7 @@ void CPositionSizeCalculator::MoveAllOpenSL()
             if (OrderType() == OP_BUY)
             {
                 double SL = sets.StopLossLevel;
-                if (SL < Bid() )
+                if (SL < Bid )
                 {
                     if (!OrderModify(OrderTicket(), OrderOpenPrice(), SL, OrderTakeProfit(), OrderExpiration()))
                         Print("OrderModify Buy TSL failed " + ErrorDescription(GetLastError()) + ".");
@@ -7374,7 +7374,7 @@ void CPositionSizeCalculator::MoveAllOpenSL()
             else if (OrderType() == OP_SELL)
             {
                 double SL = sets.StopLossLevel;
-                if (SL > Ask())
+                if (SL > Ask )
                 {
                     if (!OrderModify(OrderTicket(), OrderOpenPrice(), SL, OrderTakeProfit(), OrderExpiration()))
                         Print("OrderModify Sell TSL failed " + ErrorDescription(GetLastError()) + ".");
