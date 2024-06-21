@@ -78,7 +78,6 @@ public:
             void     OnClickBtnTradingTPShare();
             void     OnClickBtnOrderType();
             void     OnClickBtnLines();
-            void     MoveAllOpenSL();
     virtual void     OnClickButtonClose();
 
             int      MaxTakeProfitsNumber;
@@ -180,6 +179,7 @@ private:
     void OnClickBtnEntry();
     void OnClickBtnATRTimeframe();
     void OnClickBtnTrade();
+    void OnClickMoveAllOpenSL();
     void OnClickBtnQuickRisk1();
     void OnClickBtnQuickRisk2();
 };
