@@ -655,8 +655,13 @@ void DrawBELine(int ticket, double be_threshold, double be_price)
     }
 }
 
+void MoveAllOpenSL1(){
+   Print("Test");
+}
+
 void MoveAllOpenSL()
 {
+    Print("Ham Chay");
     if ((!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) || (!TerminalInfoInteger(TERMINAL_CONNECTED)) || (!MQLInfoInteger(MQL_TRADE_ALLOWED))) return;
 
     for (int i = 0; i < OrdersTotal(); i++)
