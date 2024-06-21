@@ -1950,6 +1950,7 @@ void CPositionSizeCalculator::ShowMain()
     m_LblOrderType.Show();
     m_BtnOrderType.Show();
     m_BtnLines.Show();
+    m_MoveAllSL.Show();
     m_LblCommissionSize.Show();
     m_BtnCommissionType.Show();
     m_EdtCommissionSize.Show();
