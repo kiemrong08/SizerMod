@@ -7349,7 +7349,7 @@ void PositionSizeToArray(double ps)
     else ArrayPositionSize[0] = ps;
 }
 
-void MoveAllOpenSL()
+void CPositionSizeCalculator::MoveAllOpenSL()
 {
     if ((!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) || (!TerminalInfoInteger(TERMINAL_CONNECTED)) || (!MQLInfoInteger(MQL_TRADE_ALLOWED))) return;
 
