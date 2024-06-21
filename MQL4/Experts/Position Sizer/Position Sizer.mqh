@@ -78,6 +78,7 @@ public:
             void     OnClickBtnTradingTPShare();
             void     OnClickBtnOrderType();
             void     OnClickBtnLines();
+            void     MoveAllOpenSL();
     virtual void     OnClickButtonClose();
 
             int      MaxTakeProfitsNumber;
