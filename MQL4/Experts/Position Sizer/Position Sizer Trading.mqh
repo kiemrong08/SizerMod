@@ -674,28 +674,227 @@ void MoveAllOpenSL()
             if (OrderType() == OP_BUY)
             {
                 double SL = sets.StopLossLevel;
-                if (SL < Bid )
+                if ( (SL < Bid ) && (SL != OrderStopLoss()) )
                 {
                     if (!OrderModify(OrderTicket(), OrderOpenPrice(), SL, OrderTakeProfit(), OrderExpiration()))
-                        Print("OrderModify Buy TSL failed " + ErrorDescription(GetLastError()) + ".");
+                        Print("OrderModify SL failed " + ErrorDescription(GetLastError()) + ".");
                     else
-                        Print("Trailing stop was applied to position - " + Symbol() + " BUY-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(SL, _Digits) + ".");
+                        Print("SL was applied to position - " + Symbol() + " BUY-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(SL, _Digits) + ".");
                 }
             }
             else if (OrderType() == OP_SELL)
             {
                 double SL = sets.StopLossLevel;
-                if (SL > Ask)
+                if ((SL > Ask) && (SL != OrderStopLoss()))
                 {
                     if (!OrderModify(OrderTicket(), OrderOpenPrice(), SL, OrderTakeProfit(), OrderExpiration()))
-                        Print("OrderModify Sell TSL failed " + ErrorDescription(GetLastError()) + ".");
+                        Print("OrderModify SL failed " + ErrorDescription(GetLastError()) + ".");
                     else
-                        Print("Trailing stop was applied to position - " + Symbol() + " SELL-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(SL, _Digits) + ".");
+                        Print("SL was applied to position - " + Symbol() + " SELL-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(SL, _Digits) + ".");
                 }
             }
         }
     }
 }
+
+void MoveAllOpenTP()
+{
+    Print("Ham Chay");
+    if ((!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) || (!TerminalInfoInteger(TERMINAL_CONNECTED)) || (!MQLInfoInteger(MQL_TRADE_ALLOWED))) return;
+
+    for (int i = 0; i < OrdersTotal(); i++)
+    {
+        if (!OrderSelect(i, SELECT_BY_POS)) Print("OrderSelect failed " + ErrorDescription(GetLastError()) + ".");
+        else if (SymbolInfoInteger(OrderSymbol(), SYMBOL_TRADE_MODE) == SYMBOL_TRADE_MODE_DISABLED) continue;
+        else
+        {
+            if ((OrderSymbol() != Symbol())) continue;
+            if (OrderType() == OP_BUY)
+            {
+                double order_tp = sets.TakeProfitLevel;;
+                if ( ( order_tp > Bid ) && ( order_tp != OrderTakeProfit() ) && ( order_tp > OrderOpenPrice() ) )
+                {
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), OrderStopLoss(), order_tp , OrderExpiration()))
+                        Print("OrderModify TP failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("TP was applied to position - " + Symbol() + " BUY-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(order_tp, _Digits) + ".");
+                }
+            }
+            else if (OrderType() == OP_SELL)
+            {
+                double order_tp = sets.TakeProfitLevel;;
+                if ( ( order_tp < Ask) && ( order_tp != OrderTakeProfit() ) && ( order_tp <  OrderOpenPrice() ) )
+                {
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), OrderStopLoss(), order_tp , OrderExpiration()))
+                        Print("OrderModify TP failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("TP was applied to position - " + Symbol() + " SELL-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(order_tp, _Digits) + ".");
+                }
+            }
+        }
+    }
+}
+
+
+void ChangeTPToZero()
+{
+    Print("Ham Chay");
+    if ((!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) || (!TerminalInfoInteger(TERMINAL_CONNECTED)) || (!MQLInfoInteger(MQL_TRADE_ALLOWED))) return;
+
+    for (int i = 0; i < OrdersTotal(); i++)
+    {
+        if (!OrderSelect(i, SELECT_BY_POS)) Print("OrderSelect failed " + ErrorDescription(GetLastError()) + ".");
+        else if (SymbolInfoInteger(OrderSymbol(), SYMBOL_TRADE_MODE) == SYMBOL_TRADE_MODE_DISABLED) continue;
+        else
+        {
+            if ((OrderSymbol() != Symbol())) continue;
+            if ( (OrderType() == OP_BUY) && (OrderTakeProfit() != 0) )
+            {
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), OrderStopLoss(), 0 , OrderExpiration()))
+                        Print("OrderModify TP failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("TP was applied to position - " + Symbol() + " BUY-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(0, _Digits) + ".");
+                
+            }
+            else if ((OrderType() == OP_SELL) && (OrderTakeProfit() != 0))
+            {
+
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), OrderStopLoss(), 0 , OrderExpiration()))
+                        Print("OrderModify TP failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("TP was applied to position - " + Symbol() + " SELL-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(0, _Digits) + ".");
+            }
+        }
+    }
+}
+
+
+void DoiBE()
+{
+   Print("Ham Chay");
+    if (!TerminalInfoInteger(TERMINAL_CONNECTED)) return;
+
+    // Delete old BE lines if necessary.
+
+    if (sets.BreakEvenPoints < 0) return;
+
+    if ((!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) || (!MQLInfoInteger(MQL_TRADE_ALLOWED))) return;
+
+    for (int i = 0; i < OrdersTotal(); i++)
+    {
+        if (!OrderSelect(i, SELECT_BY_POS)) Print("OrderSelect failed " + ErrorDescription(GetLastError()) + ".");
+        else if (SymbolInfoInteger(OrderSymbol(), SYMBOL_TRADE_MODE) == SYMBOL_TRADE_MODE_DISABLED) continue;
+        else
+        {
+            if (OrderSymbol() != Symbol()) continue;
+
+            // Based on the commission if UseCommissionToSetTPDistance is set to true.
+            double extra_be_distance = 0;
+            if ((UseCommissionToSetTPDistance) && (sets.CommissionPerLot != 0))
+            {
+                // Calculate real commission in currency units.
+                double commission = CalculateCommission();
+
+                // Extra BE Distance = Commission Size / Point_value.
+                // Commission Size = Commission * 2.
+                // Extra BE Distance = Commission * 2 / Point_value.
+                if ((UnitCost_reward != 0) && (TickSize != 0))
+                    extra_be_distance = commission * 2 / (UnitCost_reward / TickSize);
+            }
+
+            if (OrderType() == OP_BUY)
+            {
+                double BE_price = NormalizeDouble(OrderOpenPrice() + extra_be_distance, _Digits);
+
+                if ((Bid >= BE_price) && (BE_price > OrderStopLoss())) // Only move to BE if the price reached the necessary threshold, the price is above the calculated BE price, and the current stop-loss is lower.
+                {
+                    double prev_sl = OrderStopLoss(); // Remember old SL for reporting.
+                    // Write Open price to the SL field.
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), BE_price, OrderTakeProfit(), OrderExpiration()))
+                        Print("OrderModify Buy BE failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("Breakeven was applied to position - " + Symbol() + " BUY-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(prev_sl, _Digits) + ".");
+                }
+            }
+            else if (OrderType() == OP_SELL)
+            {
+                double BE_price = NormalizeDouble(OrderOpenPrice() - extra_be_distance, _Digits);
+                if ( (Ask <= BE_price) && ((BE_price < OrderStopLoss()) || (OrderStopLoss() == 0))) // Only move to BE if the price reached the necessary threshold, the price below the calculated BE price, and the current stop-loss is higher (or zero).
+                {
+                    double prev_sl = OrderStopLoss(); // Remember old SL for reporting.
+                    // Write Open price to the SL field.
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), BE_price, OrderTakeProfit(), OrderExpiration()))
+                        Print("OrderModify Sell BE failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("Breakeven was applied to position - " + Symbol() + " SELL-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(prev_sl, _Digits) + ".");
+                }
+            }
+        }
+    }
+}
+void MoveOneOpenTP()
+{
+    Print("Ham Chay");
+    if ((!TerminalInfoInteger(TERMINAL_TRADE_ALLOWED)) || (!TerminalInfoInteger(TERMINAL_CONNECTED)) || (!MQLInfoInteger(MQL_TRADE_ALLOWED))) return;
+
+    for (int i = 0; i < OrdersTotal(); i++)
+    {
+        if (!OrderSelect(i, SELECT_BY_POS)) Print("OrderSelect failed " + ErrorDescription(GetLastError()) + ".");
+        else if (SymbolInfoInteger(OrderSymbol(), SYMBOL_TRADE_MODE) == SYMBOL_TRADE_MODE_DISABLED) continue;
+        else
+        {
+            if ((OrderSymbol() != Symbol())) continue;
+            if (OrderType() == OP_BUY)
+            {
+                double order_tp = sets.TakeProfitLevel;;
+                if ( ( order_tp > Bid ) && ( order_tp != OrderTakeProfit() ) && ( order_tp > OrderOpenPrice() ) )
+                {
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), OrderStopLoss(), order_tp , OrderExpiration()))
+                        Print("OrderModify TP failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("TP was applied to position - " + Symbol() + " BUY-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(order_tp, _Digits) + ".");
+                }
+            }
+            else if (OrderType() == OP_SELL)
+            {
+                double order_tp = sets.TakeProfitLevel;;
+                if ( ( order_tp < Ask) && ( order_tp != OrderTakeProfit() ) && ( order_tp <  OrderOpenPrice() ) )
+                {
+                    if (!OrderModify(OrderTicket(), OrderOpenPrice(), OrderStopLoss(), order_tp , OrderExpiration()))
+                        Print("OrderModify TP failed " + ErrorDescription(GetLastError()) + ".");
+                    else
+                        Print("TP was applied to position - " + Symbol() + " SELL-order #" + IntegerToString(OrderTicket()) + " Lotsize = " + DoubleToString(OrderLots(), LotStep_digits) + ", OpenPrice = " + DoubleToString(OrderOpenPrice(), _Digits) + ", Stop-Loss was moved from " + DoubleToString(OrderStopLoss(), _Digits) + " to " + DoubleToString(order_tp, _Digits) + ".");
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+double CalculateOrderLots(const double lots, const string symbol)
+{
+
+    double vol_min = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
+    double vol_step = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
+
+    double volume = lots * 50 / 100.0;
+
+    if (volume < vol_min) return(vol_min);
+
+    double steps = 0;
+    if (vol_step != 0) steps = volume / vol_step;
+    if (MathFloor(steps) < steps)
+    {
+        if (UseTotalVolume) volume = MathCeil(steps) * vol_step; // Close 0.02 out of 0.02 even with 70% partial close percentage if UseTotalVolume == true. Total volume closed will verify percentage compliance.
+        else volume = MathFloor(steps) * vol_step; // Normal situation - close smallest part of the volume possible.
+    }
+
+    return(volume);
+}
+
 
 
 //+------------------------------------------------------------------+
